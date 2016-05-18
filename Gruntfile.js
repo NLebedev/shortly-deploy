@@ -2,7 +2,22 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    gitpush: {
+      your_target: {
+        options: {
+          branch: 'master',
+          remote: 'live'
+        }
+      }
+    },
     concat: {
+      options: {
+        separator: ';'
+      },
+      dist: {
+        src: ['public/client/**/*.js', 'public/lib/**/*.js' ],
+        dest: 'dist/<%= pkg.name %>.js'
+      }
     },
 
     mochaTest: {
@@ -21,6 +36,11 @@ module.exports = function(grunt) {
     },
 
     uglify: {
+      my_target: {
+        files: {
+          'dist/<%= pkg.name %>.js': ['dist/<%= pkg.name %>.js']
+        }
+      }
     },
 
     eslint: {
@@ -30,6 +50,15 @@ module.exports = function(grunt) {
     },
 
     cssmin: {
+      target: {
+        files: [{
+          expand: true,
+          cwd: 'public',
+          src: ['*.css', '!*.min.css'],
+          dest: 'public',
+          ext: '.min.css'
+        }]
+      }
     },
 
     watch: {
@@ -63,6 +92,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-nodemon');
+  grunt.loadNpmTasks('grunt-git');
 
   grunt.registerTask('server-dev', function (target) {
     grunt.task.run([ 'nodemon', 'watch' ]);
@@ -91,5 +121,14 @@ module.exports = function(grunt) {
     // add your deploy tasks here
   ]);
 
+  grunt.registerTask('start', ['nodemon']);
+
+  grunt.registerTask('push', ['gitpush']);
+
+  grunt.registerTask('shrink', ['uglify']);
+
+  grunt.registerTask('cssShrink', ['cssmin']);
+
+  grunt.registerTask('conca', ['concat']);
 
 };
