@@ -16,7 +16,7 @@ module.exports = function(grunt) {
       },
       dist: {
         src: ['public/client/**/*.js', 'public/lib/**/*.js' ],
-        dest: 'dist/<%= pkg.name %>.js'
+        dest: 'public/dist/<%= pkg.name %>.min.js'
       }
     },
 
@@ -38,13 +38,14 @@ module.exports = function(grunt) {
     uglify: {
       my_target: {
         files: {
-          'dist/<%= pkg.name %>.js': ['dist/<%= pkg.name %>.js']
+          'public/dist/<%= pkg.name %>.min.js': ['public/dist/<%= pkg.name %>.min.js']
         }
       }
     },
 
     eslint: {
       target: [
+        '*.js', '!*.min.js'
         // Add list of files to lint here
       ]
     },
@@ -64,8 +65,8 @@ module.exports = function(grunt) {
     watch: {
       scripts: {
         files: [
-          'public/client/**/*.js',
-          'public/lib/**/*.js',
+          '*/**.js',
+          '!*/**.min.js',
         ],
         tasks: [
           'concat',
@@ -73,7 +74,7 @@ module.exports = function(grunt) {
         ]
       },
       css: {
-        files: 'public/*.css',
+        files: ['*.css', '!*min.css'],
         tasks: ['cssmin']
       }
     },
@@ -95,40 +96,45 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-git');
 
   grunt.registerTask('server-dev', function (target) {
-    grunt.task.run([ 'nodemon', 'watch' ]);
+    grunt.task.run([ 'format', 'nodemon']);
   });
+
+  grunt.registerTask('code-dev', function (target) {
+    grunt.task.run([ 'format', 'watch']);
+  });  
 
   ////////////////////////////////////////////////////
   // Main grunt tasks
   ////////////////////////////////////////////////////
+  grunt.registerTask('format', ['concat', 'uglify', 'cssmin']);
 
-  grunt.registerTask('test', [
-    'mochaTest'
-  ]);
+  grunt.registerTask('lint', ['eslint']);
 
-  grunt.registerTask('build', [
-  ]);
+  grunt.registerTask('watchChanges', ['watch']);
+
+  grunt.registerTask('test', ['mochaTest']);
+
+  grunt.registerTask('build', []);
 
   grunt.registerTask('upload', function(n) {
     if (grunt.option('prod')) {
+      grunt.task.run(['gitpush']);
       // add your production server task here
     } else {
       grunt.task.run([ 'server-dev' ]);
     }
   });
 
-  grunt.registerTask('deploy', [
-    // add your deploy tasks here
-  ]);
+  grunt.registerTask('deploy', function(n) {
+    if (grunt.option('prod')) {
+      grunt.task.run(['mochaTest', 'eslint', 'format', 'gitpush']);
+    } else {
+      grunt.task.run(['mochaTest', 'eslint', 'format', 'nodemon']);
+    }
+  });
 
   grunt.registerTask('start', ['nodemon']);
 
   grunt.registerTask('push', ['gitpush']);
-
-  grunt.registerTask('shrink', ['uglify']);
-
-  grunt.registerTask('cssShrink', ['cssmin']);
-
-  grunt.registerTask('conca', ['concat']);
 
 };
