@@ -2,6 +2,7 @@
 var bcrypt = require('bcrypt-nodejs');
 var Promise = require('bluebird');
 var db = require('../../mongoUtil');
+var mongoose = require('../../mongooseUtil');
 
 var User = function(username, password) {
   this.username = username;
@@ -25,31 +26,17 @@ User.prototype.hashPassword = function() {
 };
 
 User.prototype.saveToMongo = function(callback) {
-  //refactored
   var context = this;
-  var connection = db.get();
-  var table = connection.collection('users');
-  table.insert({
-    username: context.username,
-    password: context.password
-  }, {w: 1}, function(err, records) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log('Record added');
-    }
+  var newUser = new mongoose.userDB({username: context.username, password: context.password});
+  newUser.save(function (err, fluffy) {
     callback();
   });
+
 };
 
 User.prototype.checkTableForUser = function(cb) {
-  
   var context = this;
-  var connection = db.get();
-  var table = connection.collection('users');
-  table.findOne({
-    username: context.username
-  }, 
+  mongoose.userDB.findOne({username: context.username}, 
   function(err, item) {
     console.log('error', err);
     console.log('item', item);
