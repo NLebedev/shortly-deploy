@@ -4,7 +4,7 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var util = require('./lib/utility');
-
+var db = require('./mongoUtil');
 var handler = require('./lib/request-handler');
 
 var app = express();
@@ -36,5 +36,11 @@ app.get('/signup', handler.signupUserForm);
 app.post('/signup', handler.signupUser);
 
 app.get('/*', handler.navToLink);
+
+db.connect('mongodb://localhost:27017/users', function(err) {
+  if (err) {
+    console.log('Unable to connect to MongoDB');
+  } 
+});
 
 module.exports = app;
