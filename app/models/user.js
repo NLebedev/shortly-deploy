@@ -5,9 +5,9 @@ var db = require('../../mongoUtil');
 var mongoose = require('../../mongooseUtil');
 
 var User = function(username, password) {
-  this.username = username;
-  this.password = password;
-  this.unHashed = password;
+  this.username = username || '';
+  this.password = password || '';
+  this.unHashed = password || '';
   this.hashPassword();
   this.tableName = 'users';
 };
@@ -51,6 +51,11 @@ User.prototype.checkTableForUser = function(cb) {
   });
 };
 
+User.prototype.remove = function(item) {
+  return mongoose.userDB.find(item).remove(function(err) {
+    console.log('removed item');
+  });
+};
 // User.prototype.saveToMongoSync = Promise.promisify(User.prototype.saveToMongo);
 
 module.exports = User;

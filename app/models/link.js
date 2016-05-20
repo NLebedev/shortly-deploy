@@ -3,10 +3,10 @@ var crypto = require('crypto');
 var mongoose = require('../../mongooseUtil');
 
 var Link = function(url, baseUrl, code, title) {
-  this.url = url;
-  this.baseUrl = baseUrl;
-  this.code = code;
-  this.title = title;
+  this.url = url || '';
+  this.baseUrl = baseUrl || '';
+  this.code = code || '';
+  this.title = title || '';
   this.visits = 0;
 
   var shasum = crypto.createHash('sha1');
@@ -47,5 +47,10 @@ Link.prototype.checkTableForLink = function(cb) {
   });
 };
 
+Link.prototype.remove = function(item) {
+  return mongoose.urlDB.find(item).remove(function(err) {
+    console.log('removed item');
+  });
+};
 
 module.exports = Link;
