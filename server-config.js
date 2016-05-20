@@ -39,10 +39,4 @@ app.post('/signup', handler.signupUser);
 
 app.get('/*', handler.navToLink);
 
-db.connect('mongodb://localhost:27017/users', function(err) {
-  if (err) {
-    console.log('Unable to connect to MongoDB');
-  } 
-});
-
 module.exports = app;
